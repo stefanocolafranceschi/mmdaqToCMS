@@ -1,9 +1,11 @@
-//////////////////////////////////////////////////////////
-// This class has been automatically generated on
-// Wed Sep 15 22:33:34 2021 by ROOT version 6.20/04
-// from TTree apv_raw/APVRawData
-// found on file: run12.root
-//////////////////////////////////////////////////////////
+/*
+ *  apv_raw.h
+ *  mmdaqToCMS
+ *
+ *  Created by S. Colafranceschi on 22/9/21.
+ *  Creative Commons (CC BY), aka do whatever you please
+ *
+ */
 
 #ifndef apv_raw_h
 #define apv_raw_h
@@ -22,6 +24,12 @@
 #include <string>
 
 
+/**
+ Class generated on Wed Sep 15 22:33:34 2021
+ ROOT version 6.20/04
+ from TTree apv_raw/APVRawData 
+ found on file: run12.root provided by M.Maggi
+*/
 
 class apv_raw : public TSelector {
 public :
@@ -45,6 +53,62 @@ public :
    TTreeReaderArray<vector<short>> raw_q = {fReader, "raw_q"};
    TTreeReaderArray<short> max_q = {fReader, "max_q"};
    TTreeReaderArray<int> t_max_q = {fReader, "t_max_q"};
+
+   static const Int_t MAXHITS = 100;
+   static const Int_t MAXCLUSTER = 100;
+
+   TFile* recofile;
+   TTree* THit;
+   TTree* TCluster;
+   Int_t           evtID;
+   Int_t           nCh;
+   Int_t           hitTimebin[MAXHITS];
+   Int_t           detID[MAXHITS];
+   Float_t         planeID[MAXHITS];      
+   Int_t           strip[MAXHITS];
+   Int_t           srsChanMapped[MAXHITS];   
+   Int_t           srsChanTemp[MAXHITS];
+   Int_t           Sector[MAXHITS];
+   Int_t	   Position[MAXHITS];
+   Int_t           Offset[MAXHITS];
+   Double_t        StripPitch[MAXHITS];
+   Short_t         adc0[MAXHITS];
+   Short_t         adc1[MAXHITS];
+   Short_t         adc2[MAXHITS];
+   Short_t         adc3[MAXHITS];
+   Short_t         adc4[MAXHITS];
+   Short_t         adc5[MAXHITS];
+   Short_t         adc6[MAXHITS];
+   Short_t         adc7[MAXHITS];
+   Short_t         adc8[MAXHITS];
+   Short_t         adc9[MAXHITS];
+   Short_t         adc10[MAXHITS];
+   Short_t         adc11[MAXHITS];
+   Short_t         adc12[MAXHITS];
+   Short_t         adc13[MAXHITS];
+   Short_t         adc14[MAXHITS];
+   Short_t         adc15[MAXHITS];
+   Short_t         adc16[MAXHITS];
+   Short_t         adc17[MAXHITS];
+   Short_t         adc18[MAXHITS];
+   Short_t         adc19[MAXHITS];
+   Short_t         adc20[MAXHITS];
+   Short_t         adc21[MAXHITS];
+   Short_t         adc22[MAXHITS];
+   Short_t         adc23[MAXHITS];
+   Short_t         adc24[MAXHITS];
+   Short_t         adc25[MAXHITS];
+   Short_t         adc26[MAXHITS];
+   Short_t         adc27[MAXHITS];
+
+   Int_t           nclust;
+   Float_t         clustPos[MAXCLUSTER];
+   Int_t           clustSize[MAXCLUSTER];
+   Float_t         clustADCs[MAXCLUSTER];
+   Int_t           clustTimebin[MAXCLUSTER];
+
+   ReadConf myconfiguration;
+   std::string ConfigFile;
 
 
    apv_raw(TTree * /*tree*/ =0) { }
@@ -70,28 +134,12 @@ public :
 #endif
 
 #ifdef apv_raw_cxx
-void apv_raw::Init(TTree *tree)
-{
-   // The Init() function is called when the selector needs to initialize
-   // a new tree or chain. Typically here the reader is initialized.
-   // It is normally not necessary to make changes to the generated
-   // code, but the routine can be extended by the user if needed.
-   // Init() will be called many times when running on PROOF
-   // (once per file to be processed).
-
+void apv_raw::Init(TTree *tree) {
    fReader.SetTree(tree);
 }
 
-Bool_t apv_raw::Notify()
-{
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
-
+Bool_t apv_raw::Notify() {
    return kTRUE;
 }
-
 
 #endif // #ifdef apv_raw_cxx
