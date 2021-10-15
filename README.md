@@ -14,6 +14,46 @@ The following command runs the code and utilize a custom (make sure it exists) M
 
 ```./Builder <mmdaq.root> <MySpecialConfigFile.cfg.```
 
+# Verbose output
+The Config file contains a verbose output flag that enables a colorful event-by-event dump displayed below as an example:
+Processing event 10897 (entry=10162), found 9 fired channels.
+SRSFEC[0] = 1 SRSCHIP[0] = 3
+ Nch[= 0], Sector = 1, Position = 195, Offset = 192, Size = 763, Chips = 3, StripPitch = 1.98698
+SRSFEC[1] = 1 SRSCHIP[1] = 4
+ Nch[= 1], Sector = 2, Position = 97, Offset = 256, Size = 728, Chips = 3, StripPitch = 1.89583
+SRSFEC[2] = 1 SRSCHIP[2] = 4
+ Nch[= 2], Sector = 1, Position = 195, Offset = 256, Size = 763, Chips = 3, StripPitch = 1.98698
+SRSFEC[3] = 1 SRSCHIP[3] = 4
+ Nch[= 3], Sector = 2, Position = 97, Offset = 256, Size = 728, Chips = 3, StripPitch = 1.89583
+SRSFEC[4] = 1 SRSCHIP[4] = 4
+ Nch[= 4], Sector = 1, Position = 195, Offset = 256, Size = 763, Chips = 3, StripPitch = 1.98698
+SRSFEC[5] = 1 SRSCHIP[5] = 6
+ Nch[= 5], Sector = 3, Position = -97, Offset = 0, Size = 694, Chips = 3, StripPitch = 1.80729
+SRSFEC[6] = 1 SRSCHIP[6] = 6
+ Nch[= 6], Sector = 3, Position = -97, Offset = 0, Size = 694, Chips = 3, StripPitch = 1.80729
+SRSFEC[7] = 1 SRSCHIP[7] = 6
+ Nch[= 7], Sector = 3, Position = -97, Offset = 0, Size = 694, Chips = 3, StripPitch = 1.80729
+SRSFEC[8] = 1 SRSCHIP[8] = 8
+ Nch[= 8], Sector = 3, Position = -97, Offset = 128, Size = 694, Chips = 3, StripPitch = 1.80729
+srsChanMapped[0] = 203, apvHit[0] = 22, StripPitch[0] = 1.98698 Sector = 1  ClusterPosition[0] = 403.357
+srsChanMapped[1] = 283, apvHit[1] = 55, StripPitch[1] = 1.89583 Sector = 2  ClusterPosition[1] = 536.521
+srsChanMapped[2] = 285, apvHit[2] = 58, StripPitch[2] = 1.98698 Sector = 1  ClusterPosition[2] = 566.289
+srsChanMapped[3] = 299, apvHit[3] = 87, StripPitch[3] = 1.89583 Sector = 2  ClusterPosition[3] = 566.854
+srsChanMapped[4] = 301, apvHit[4] = 90, StripPitch[4] = 1.98698 Sector = 1  ClusterPosition[4] = 598.081
+srsChanMapped[5] = 31, apvHit[5] = 62, StripPitch[5] = 1.80729 Sector = 3  ClusterPosition[5] = 56.026
+srsChanMapped[6] = 32, apvHit[6] = 64, StripPitch[6] = 1.80729 Sector = 3  ClusterPosition[5] = 113.859
+srsChanMapped[7] = 47, apvHit[7] = 94, StripPitch[7] = 1.80729 Sector = 3  ClusterPosition[6] = 84.9427
+srsChanMapped[8] = 172, apvHit[8] = 88, StripPitch[8] = 1.80729 Sector = 3  ClusterPosition[7] = 310.854
+Number of Clusters = 8
+Position Cluster[0]=403.357 Cluster Size[0]=1 Position = 195 Sector = 1 
+Position Cluster[1]=536.521 Cluster Size[1]=1 Position = 97 Sector = 2 
+Position Cluster[2]=566.289 Cluster Size[2]=1 Position = 195 Sector = 1 
+Position Cluster[3]=566.854 Cluster Size[3]=1 Position = 97 Sector = 2 
+Position Cluster[4]=598.081 Cluster Size[4]=1 Position = 195 Sector = 1 
+Position Cluster[5]=56.9297 Cluster Size[5]=2 Position = -97 Sector = 3 
+Position Cluster[6]=84.9427 Cluster Size[6]=1 Position = -97 Sector = 3 
+Position Cluster[7]=310.854 Cluster Size[7]=1 Position = -97 Sector = 3
+
 # Considerations
 [ConfigFile.Cfg](ConfigFile.cfg) is ready to use to my best knowledge, however it's easy to adjust it, follow the comments inside the configuration file to alter the detector geometry, Chip position and whatnot
 
