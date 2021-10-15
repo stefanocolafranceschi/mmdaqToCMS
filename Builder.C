@@ -22,13 +22,23 @@ bool IsFileExisting(std::string filename);
 int main(int argc, char* argv[]) {
 //int main(string InputFile) {
 
+   std:string ConfigFile = "ConfigFile.cfg";
+   ReadConf myconfiguration;
+   myconfiguration.InputFile = ConfigFile;
+   myconfiguration.LoadConfiguration();
+
     if (argc == 3) {
         std::string RawFile(argv[1]);
         std::string ConfigFile(argv[2]);
         if (IsFileExisting(RawFile)) {
             TFile file0(RawFile.c_str());
             TTree* t = dynamic_cast<TTree*>(file0.Get("apv_raw"));
-            t->Process("apv_raw.C+",RawFile.c_str());
+            if (myconfiguration.MaxEvents < 0) {
+                t->Process("apv_raw.C+",RawFile.c_str());
+            }
+            else {
+                t->Process("apv_raw.C+",RawFile.c_str(),myconfiguration.MaxEvents);
+            }
        }
     }
     if (argc == 2) {
@@ -37,7 +47,12 @@ int main(int argc, char* argv[]) {
 	if (IsFileExisting(RawFile)) {
             TFile file0(RawFile.c_str());
             TTree* t = dynamic_cast<TTree*>(file0.Get("apv_raw"));
-            t->Process("apv_raw.C+(myconfiguration)",RawFile.c_str());
+            if (myconfiguration.MaxEvents < 0) {
+                t->Process("apv_raw.C+",RawFile.c_str());
+            }
+            else {
+                t->Process("apv_raw.C+",RawFile.c_str(),myconfiguration.MaxEvents);
+            }
        }
     }
     return 0;

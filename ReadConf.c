@@ -24,14 +24,16 @@ int ReadConf::LoadConfiguration() {
     Verbose = reader.GetBoolean("General", "Verbose", false);
     ReadoutType = reader.Get("General", "ReadoutType", "PLAIN");
     NumberOfChips = reader.GetInteger("General", "NumberOfChips", 0);
-    for (int i = 1; i <= 8; i++) {
+    Reco = reader.Get("General", "Reco", "All");
+    MaxEvents = reader.GetInteger("General", "MaxEvents", 100000000);
+    for (int i = 1; i <= 4; i++) {
         Position[i] = reader.GetInteger("Sector"+std::to_string(i), "Position", 0);
         Size[i] = reader.GetInteger("Sector"+std::to_string(i), "Size", 0);
         Chips[i] = reader.GetInteger("Sector"+std::to_string(i), "Chips", 0);
         Pitch[i] = static_cast<double>(Size[i]) / (128*Chips[i]);
     }
 
-    for (int i = 1; i <= 24; i++) {
+    for (int i = 1; i <= 12; i++) {
         FecID[i] = reader.GetInteger("apv"+std::to_string(i), "FecID", 0);
         adcCh[i] = reader.GetInteger("apv"+std::to_string(i), "adcCh", 0);
         DetPlane[i] = reader.GetInteger("apv"+std::to_string(i), "DetPlane", 0);
@@ -48,7 +50,7 @@ void ReadConf::PrintConfiguration(ReadConf myconfiguration) {
     std::cout << "Config loaded from " << InputFile << std::endl;
     std::cout << "\n\nGENERAL ---------------------------------------------"<< std::endl;
 
-    for (int i = 1; i <= 8; i++) {
+    for (int i = 1; i <= 4; i++) {
         std::cout << "Sector"<< i << " = " << myconfiguration.Position[i]
         << "\tSize = " << myconfiguration.Size[i]
         << "\tNumber of Chips = " << myconfiguration.Chips[i]
@@ -56,7 +58,7 @@ void ReadConf::PrintConfiguration(ReadConf myconfiguration) {
 
     }
     std::cout << "\nAPVs-----------------------------------------------" << std::endl;
-    for (int i = 1; i <= 24; i++) {
+    for (int i = 1; i <= 12; i++) {
         std::cout << "FecID"<< i << " = " << myconfiguration.FecID[i]
         << " adcCh = " << myconfiguration.adcCh[i]
         << " DetPlane = " << myconfiguration.DetPlane[i]

@@ -17,22 +17,36 @@
  @return Physical strip number
 
 */
-Int_t CustomMapping(std::string Readout, Int_t chNo) {
-
-    if ( Readout == "CMSGEM" ) {
+Int_t EtaAdd(std::string Readout, Int_t chNo) {
+    int add = 0;
+    if ( Readout == "CMSGE21" ) {
         if((chNo%2)==1){
-            chNo= 127-(chNo-1)/2;
+            add = 1;
+        }
+	else {
+            add = 0;
+        }
+    }
+    return add;
+}
+
+Int_t CustomMapping(std::string Readout, Int_t chNo) {
+    int strip=0;
+
+    if ( Readout == "CMSGE21" ) {
+        if((chNo%2)==1){
+            strip = (chNo-1)/2;
         }
         else {
-	    chNo = chNo/2; //63 - (chNo/2);
+	    strip = chNo/2;
         }
     }
 
     if ( Readout == "PLAIN" ) {
-        chNo = chNo;
+        strip = chNo;
     }
 
-    return chNo ;
+    return strip ;
 }
 
 /**

@@ -10,6 +10,8 @@
 #define apv_raw_cxx
 #include "ReadConf.h"
 #include "Mapping.h"
+#include "Color.h"
+#include <unistd.h>
 
 /**
  The class definition in apv_raw.h has been generated automatically
@@ -53,7 +55,7 @@ void apv_raw::Begin(TTree * /*tree*/) {
    TCluster->Branch("clustADCs",clustADCs,"clustADCs[nclust]/F");
    TCluster->Branch("clustTimebin",clustTimebin,"clustTimebin[nclust]/I");
    TCluster->Branch("detID",detID,"detID[nclust]/I");
-   TCluster->Branch("planeID",planeID,"planeID[nclust]/I");
+   TCluster->Branch("planeID",planeID,"planeID[nclust]/F");
 
    THit = new TTree("THit","Hit Branch");
    THit->Branch("evtID",&evtID,"evtID/I");
@@ -105,10 +107,12 @@ void apv_raw::SlaveBegin(TTree * /*tree*/) {
 
 Bool_t apv_raw::Process(Long64_t entry) {
 
+   //sleep(1);
+
    fReader.SetLocalEntry(entry);
    evtID = *evt;
    nCh = srsChan.GetSize();
-   if (myconfiguration.Verbose) cout << "\n\nProcessing event " << entry << ", found " << nCh << " fired channels." << endl;
+   if (myconfiguration.Verbose) cout << BLUE << "\n\nProcessing event " << evtID << " (entry=" << entry << "), found " << nCh << " fired channels." << RESET << endl;
    
    nclust = 0;
 
@@ -126,15 +130,26 @@ Bool_t apv_raw::Process(Long64_t entry) {
    // utilizes the FlipChannel routine. Use both srsFec and srsChip to determine the ETA Sector
    //
    for (int i = 0; i < nCh; i++) {
+       if (myconfiguration.Verbose) cout << GREEN << "SRSFEC[" << i << "] = " << srsFec[i] << " SRSCHIP["<<i<<"] = "<< srsChip[i] << RESET << std::endl;
 
        bool Flip = false;
-       for (int k = 0; k < myconfiguration.NumberOfChips; k++){
+       for (int k = 1; k <= myconfiguration.NumberOfChips; k++){
            if ( (srsFec[i] == myconfiguration.FecID[k] ) && ( srsChip[i] == myconfiguration.adcCh[k]) ) {
                Flip = myconfiguration.Flip[k];
-               Sector[i] = myconfiguration.DetPlane[k];
+
+               // Get the DetectorPlane and consider the Virtual thing
+               Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
                Position[i] = myconfiguration.Position[ Sector[i] ];
-               Offset[i] = myconfiguration.apvIndex[k] * 128;
-               StripPitch[i] = static_cast<double>(myconfiguration.Size[k]) / (128*myconfiguration.Chips[k]);
+               Offset[i] = myconfiguration.apvIndex[k] * 64;
+               StripPitch[i] = static_cast<double>(myconfiguration.Size[ Sector[i] ]) / (128*myconfiguration.Chips[ Sector[i] ]);
+
+               //if (myconfiguration.Chips[k]<=0) StripPitch[i] = 0;
+               if (myconfiguration.Verbose) cout << BOLDGREEN << " Nch[= " << i << "], Sector = "<< Sector[i];
+               if (myconfiguration.Verbose) cout << ", Position = " << Position[i];
+               if (myconfiguration.Verbose) cout << ", Offset = "<< Offset[i];
+               if (myconfiguration.Verbose) cout << ", Size = " << myconfiguration.Size[ Sector[i] ];
+               if (myconfiguration.Verbose) cout << ", Chips = " << myconfiguration.Chips[ Sector[i] ];
+               if (myconfiguration.Verbose) cout << ", StripPitch = " << StripPitch[i] << RESET << std::endl;
            }
        }
 
@@ -157,9 +172,15 @@ Bool_t apv_raw::Process(Long64_t entry) {
    for (int i = 0; i < nCh; i++) {
 
        if (i>=1) {
-           if ( (srsChanMapped[i]-srsChan[i-1]) > 1) {
+           // Contiguous hit not found
+           if ( abs(srsChanMapped[i]-srsChanMapped[i-1]) > 1) {
+
+               // Archieve the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
                nclust++;
+
+               // Start a new cluster (position, ADC, timing)......
+
                clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i];
                clustSize[nclust-1] = 1;
 
@@ -179,28 +200,40 @@ Bool_t apv_raw::Process(Long64_t entry) {
                clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
                if (i==(nCh-1)) clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
            }
+           if (myconfiguration.Verbose) cout <<	RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
+           if (myconfiguration.Verbose) cout << ", apvHit["<< i << "] = " << srsChan[i];
+           if (myconfiguration.Verbose) cout << ", StripPitch["<< i << "] = " << StripPitch[i];
+           if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " ";
+           if (myconfiguration.Verbose) cout << " ClusterPosition[" << (nclust-1) << "] = " << clustPos[nclust-1] << RESET << std::endl;
        }
-       else {
+
+       // Initial seed of the cluster
+       if (i==0) {
            nclust = 1;
-           clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i];
-           clustSize[nclust-1] = 1;
-           
-           clustADCs[nclust-1] = raw_q[i][0];
+           clustSize[0] = 1;
+           clustPos[0] = StripPitch[i] * srsChanMapped[i];
+           clustADCs[0] = raw_q[i][0];
            for (int z = 1; z < 26; z++) {
-               clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
+               clustADCs[0] = clustADCs[0] + raw_q[i][z];
            }
-           clustTimebin[nclust-1] = t_max_q[i];
+           clustTimebin[0] = t_max_q[i];
+
+           if (myconfiguration.Verbose) cout << RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
+           if (myconfiguration.Verbose) cout << ", apvHit["<< i << "] = " << srsChan[i];
+           if (myconfiguration.Verbose) cout << ", StripPitch["<< i << "] = " << StripPitch[i];
+           if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " ";
+           if (myconfiguration.Verbose) cout << " ClusterPosition[" << (nclust-1) << "] = " << clustPos[0] << RESET << std::endl;
        }
-
+/*
        // Verbose Printout of Mapped channels and raw strips
-       if (myconfiguration.Verbose) if (i==0) cout << "srsChanMapped = ";
-       if (myconfiguration.Verbose) if (i>=0) cout << srsChanMapped[i] << " ";
-       if (myconfiguration.Verbose) if (i>=0) cout << "(" << srsChan[i] << ") ";
-       if (myconfiguration.Verbose) if (i>=0) cout << Sector[i] << " ";
-       if (myconfiguration.Verbose) if (i>=0) cout << " Plane Pos.=" << Position[i] << ", ";
-
+       if (myconfiguration.Verbose) if (i>=0) cout << "srsChanMapped = ";
+       if (myconfiguration.Verbose) if (i>=0) cout << std::setw(3) << srsChanMapped[i] << " ";
+       if (myconfiguration.Verbose) if (i>=0) cout << "(APV channel=" << std::setw(3) << srsChan[i] << ") ";
+       if (myconfiguration.Verbose) if (i>=0) cout << " Sector=" << Sector[i] << " ";
+       if (myconfiguration.Verbose) if (i>=0) cout << std::setw(3) << " Plane Pos.=" << Position[i] << std::endl;
+*/
        // Assigning THit Branches
-       strip[i] = srsChanTemp[i];           //Straight from hits: srsChan[i];
+       strip[i] = srsChanMapped[i];           //Straight from hits: srsChanMapped[i];
        adc0[i] = raw_q[i][0];
        adc1[i] = raw_q[i][1];
        adc2[i] = raw_q[i][2];
@@ -233,20 +266,22 @@ Bool_t apv_raw::Process(Long64_t entry) {
        detID[i] = srsChip[i];
        planeID[i] = Position[i];
    }
-   if (myconfiguration.Verbose) cout << "Number of Clusters = " << nclust << endl;
+   if (myconfiguration.Verbose) cout << std::setw(3) << "Number of Clusters = " << nclust << endl;
 
+   for (int i = 0; i < nclust; i++) {
+       detID[i] = srsChip[i];
+       planeID[i] = Position[i];
+       if (myconfiguration.Verbose) cout << std::setw(3) << "Position Cluster["<<i<<"]=" << std::setfill(' ') << std::setw(5) << clustPos[i] << " ";
+       if (myconfiguration.Verbose) cout << std::setw(2) << "Cluster Size["<<i<<"]=" << clustSize[i];
+       if (myconfiguration.Verbose) cout << " Position = " << Position[i];
+       if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " " << RESET << std::endl;
+   }
 
    //
    // Tree filling
-   //
+   //    
    THit->Fill();
    TCluster->Fill();
-
-   for (int i = 0; i < nclust; i++){
-       detID[i] = srsChip[i];
-       if (myconfiguration.Verbose) cout << "Position Cluster["<<i<<"]=" << clustPos[i] << " "; 
-       if (myconfiguration.Verbose) cout << "Cluster Size["<<i<<"]=" << clustSize[i] << " ";
-   }
 
    return kTRUE;
 }
@@ -259,7 +294,13 @@ void apv_raw::Terminate() {
 
    //THit->Print();
    //TCluster->Print();
-   THit->Write();
-   TCluster->Write();   
+   if ( myconfiguration.Reco == "All" ) {
+       THit->Write();
+       TCluster->Write();
+cout << "AALL";
+   }
+   if ( myconfiguration.Reco == "Hit") THit->Write();
+   if ( myconfiguration.Reco == "Cluster") TCluster->Write();
+
    recofile->Close();
 }

@@ -33,5 +33,5 @@ $(EXE)	:	$(OBJS)
 $(OBJS)	:	$(INCLUDES) Makefile
 
 %.o	:	%.c
-		$(CXX) -c $(CXXFLAGS) $(COPTS) $(INCLUDEDIR) -c -o $@ $< #-std=c++0x
+		$(CXX) -c $(CXXFLAGS) $(COPTS) $(INCLUDEDIR) -c -o $@ $< -std=c++0x
 
