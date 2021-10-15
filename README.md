@@ -45,10 +45,10 @@ srsChanMapped[6] = 32, apvHit[6] = 64, StripPitch[6] = 1.80729 Sector = 3  Clust
 srsChanMapped[7] = 47, apvHit[7] = 94, StripPitch[7] = 1.80729 Sector = 3  ClusterPosition[6] = 84.9427\
 srsChanMapped[8] = 172, apvHit[8] = 88, StripPitch[8] = 1.80729 Sector = 3  ClusterPosition[7] = 310.854\
 Number of Clusters = 8\
-Position Cluster[0]=403.357 Cluster Size[0]=1 Position = 195 Sector = 1\ 
-Position Cluster[1]=536.521 Cluster Size[1]=1 Position = 97 Sector = 2\ 
-Position Cluster[2]=566.289 Cluster Size[2]=1 Position = 195 Sector = 1\ 
-Position Cluster[3]=566.854 Cluster Size[3]=1 Position = 97 Sector = 2\ 
+Position Cluster[0]=403.357 Cluster Size[0]=1 Position = 195 Sector = 1\
+Position Cluster[1]=536.521 Cluster Size[1]=1 Position = 97 Sector = 2\
+Position Cluster[2]=566.289 Cluster Size[2]=1 Position = 195 Sector = 1\
+Position Cluster[3]=566.854 Cluster Size[3]=1 Position = 97 Sector = 2\
 Position Cluster[4]=598.081 Cluster Size[4]=1 Position = 195 Sector = 1\
 Position Cluster[5]=56.9297 Cluster Size[5]=2 Position = -97 Sector = 3\
 Position Cluster[6]=84.9427 Cluster Size[6]=1 Position = -97 Sector = 3\
