@@ -103,6 +103,8 @@ public :
 
    Int_t           nclust;
    Float_t         clustPos[MAXCLUSTER];
+   Float_t	   clustdetID[MAXCLUSTER];
+   Float_t	   clustPlaneID[MAXCLUSTER];
    Int_t           clustSize[MAXCLUSTER];
    Float_t         clustADCs[MAXCLUSTER];
    Int_t           clustTimebin[MAXCLUSTER];

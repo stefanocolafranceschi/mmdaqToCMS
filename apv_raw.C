@@ -140,7 +140,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
                // Get the DetectorPlane and consider the Virtual thing
                Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
                Position[i] = myconfiguration.Position[ Sector[i] ];
-               Offset[i] = myconfiguration.apvIndex[k] * 64;
+               Offset[i] = myconfiguration.apvIndex[k] * 63;
                StripPitch[i] = static_cast<double>(myconfiguration.Size[ Sector[i] ]) / (128*myconfiguration.Chips[ Sector[i] ]);
 
                //if (myconfiguration.Chips[k]<=0) StripPitch[i] = 0;
@@ -173,18 +173,19 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
        if (i>=1) {
            // Contiguous hit not found
-           if ( abs(srsChanMapped[i]-srsChanMapped[i-1]) > 1) {
+           if ( (Position[i]==Position[i-1]) && ( abs(srsChanMapped[i]-srsChanMapped[i-1]) > 1) ) {
 
                // Archieve the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
                nclust++;
 
                // Start a new cluster (position, ADC, timing)......
-
                clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i];
                clustSize[nclust-1] = 1;
-
+               clustPlaneID[nclust-1] = Position[i];
+               clustdetID[nclust-1] = srsChip[i];
                clustADCs[nclust-1] = raw_q[i][0];
+               
                for (int z = 1; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
                }
@@ -193,6 +194,9 @@ Bool_t apv_raw::Process(Long64_t entry) {
            else {
                clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i];
                clustSize[nclust-1]++;
+
+               clustPlaneID[nclust-1] = Position[i];
+               clustdetID[nclust-1] = srsChip[i];
 
                for (int z = 0; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
@@ -210,6 +214,8 @@ Bool_t apv_raw::Process(Long64_t entry) {
        // Initial seed of the cluster
        if (i==0) {
            nclust = 1;
+           clustPlaneID[0] = Position[i];
+           clustdetID[0] = srsChip[i];
            clustSize[0] = 1;
            clustPos[0] = StripPitch[i] * srsChanMapped[i];
            clustADCs[0] = raw_q[i][0];
@@ -267,7 +273,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
        planeID[i] = Position[i];
    }
    if (myconfiguration.Verbose) cout << std::setw(3) << "Number of Clusters = " << nclust << endl;
-
+/*
    for (int i = 0; i < nclust; i++) {
        detID[i] = srsChip[i];
        planeID[i] = Position[i];
@@ -276,11 +282,16 @@ Bool_t apv_raw::Process(Long64_t entry) {
        if (myconfiguration.Verbose) cout << " Position = " << Position[i];
        if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " " << RESET << std::endl;
    }
-
+*/
    //
    // Tree filling
    //    
    THit->Fill();
+
+   for (int i = 0; i < nclust; i++) {
+       detID[i] = clustdetID[i];
+       planeID[i] = clustPlaneID[i];
+   }
    TCluster->Fill();
 
    return kTRUE;
