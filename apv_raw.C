@@ -60,6 +60,7 @@ void apv_raw::Begin(TTree * /*tree*/) {
    THit = new TTree("THit","Hit Branch");
    THit->Branch("evtID",&evtID,"evtID/I");
    THit->Branch("nCh",&nCh,"nCh/I");
+   THit->Branch("hitDistance",&hitDistance,"hitDistance/I");
    THit->Branch("strip",strip,"strip[nCh]/I");
    THit->Branch("hitTimebin",hitTimebin,"hitTimebin[nCh]/I");
    THit->Branch("detID",detID,"detID[nCh]/I");
@@ -140,7 +141,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
                // Get the DetectorPlane and consider the Virtual thing
                Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
                Position[i] = myconfiguration.Position[ Sector[i] ];
-               Offset[i] = myconfiguration.apvIndex[k] * 63;
+               Offset[i] = myconfiguration.apvIndex[k] * 64;
                StripPitch[i] = static_cast<double>(myconfiguration.Size[ Sector[i] ]) / (128*myconfiguration.Chips[ Sector[i] ]);
 
                //if (myconfiguration.Chips[k]<=0) StripPitch[i] = 0;
@@ -165,6 +166,12 @@ Bool_t apv_raw::Process(Long64_t entry) {
    }
    // ----------------------------------------------------------
 
+
+   for ( int i = 0; i < nCh; i++ ) {
+       for ( int j = i + 1; j < nCh; j++ ) {
+           if ( Sector[i] == Sector[j] ) hitDistance[i] = srsChanMapped[i] - srsChanMapped[j];
+       }
+   }
 
    //
    // Clusterization algorithm

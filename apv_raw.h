@@ -63,6 +63,7 @@ public :
    Int_t           evtID;
    Int_t           nCh;
    Int_t           hitTimebin[MAXHITS];
+   Int_t           hitDistance[MAXHITS];
    Int_t           detID[MAXHITS];
    Float_t         planeID[MAXHITS];      
    Int_t           strip[MAXHITS];
