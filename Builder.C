@@ -33,10 +33,13 @@ int main(int argc, char* argv[]) {
         if (IsFileExisting(RawFile)) {
             TFile file0(RawFile.c_str());
             TTree* t = dynamic_cast<TTree*>(file0.Get("apv_raw"));
+            TTree* tped = dynamic_cast<TTree*>(file0.Get("apv_raw_ped"));
             if (myconfiguration.MaxEvents < 0) {
+                t->AddFriend(tped);
                 t->Process("apv_raw.C+",RawFile.c_str());
             }
             else {
+                t->AddFriend(tped);
                 t->Process("apv_raw.C+",RawFile.c_str(),myconfiguration.MaxEvents);
             }
        }
@@ -47,10 +50,13 @@ int main(int argc, char* argv[]) {
 	if (IsFileExisting(RawFile)) {
             TFile file0(RawFile.c_str());
             TTree* t = dynamic_cast<TTree*>(file0.Get("apv_raw"));
+            TTree* tped = dynamic_cast<TTree*>(file0.Get("apv_raw_ped"));
             if (myconfiguration.MaxEvents < 0) {
+                t->AddFriend(tped);
                 t->Process("apv_raw.C+",RawFile.c_str());
             }
             else {
+                t->AddFriend(tped);
                 t->Process("apv_raw.C+",RawFile.c_str(),myconfiguration.MaxEvents);
             }
        }

@@ -20,10 +20,11 @@ public:
     int LoadConfiguration();
     void PrintConfiguration(ReadConf myconfiguration);
 
-    int Position[9], Size[9], Chips[9], apvIndex[25], NumberOfChips, FecID[25], adcCh[25], DetPlane[25], MaxEvents;
+    int PedestalCut, Position[9], Size[9], Chips[9], apvIndex[25], NumberOfChips, FecID[25], adcCh[25], DetPlane[25], MaxEvents;
     std::string InputFile, ReadoutType, Reco;
     double Pitch[9];
-    bool Flip[25], Verbose;
+    bool Flip[25], Verbose, PedestalRemoval;
+    int MonitorEvents;
 
 private:
   int member;

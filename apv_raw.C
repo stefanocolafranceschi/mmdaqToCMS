@@ -42,7 +42,7 @@
 #include <TStyle.h>
 
 void apv_raw::Begin(TTree * /*tree*/) {
-
+ 
    TString option = GetOption();
 
    recofile = new TFile("output.root", "RECREATE");
@@ -109,13 +109,231 @@ void apv_raw::SlaveBegin(TTree * /*tree*/) {
 Bool_t apv_raw::Process(Long64_t entry) {
 
    //sleep(1);
-
    fReader.SetLocalEntry(entry);
    evtID = *evt;
+   nclust = 0;
    nCh = srsChan.GetSize();
+
+   if ( (entry%myconfiguration.MonitorEvents==0) && (myconfiguration.MonitorEvents!=123) ) cout << "Event = " << entry << endl;
+
    if (myconfiguration.Verbose) cout << BLUE << "\n\nProcessing event " << evtID << " (entry=" << entry << "), found " << nCh << " fired channels." << RESET << endl;
    
-   nclust = 0;
+
+   // Pedestal Removal ------------------------------------
+   for (int i = 0; i < nCh; i++){
+       TH1D* pedMean = new TH1D("pedMean", "pedMean", 5000, 0, 10000);
+       TH1D* pedSTD = new TH1D("pedSTD", "pedSTD", 1000, 0, 100);
+       if (myconfiguration.PedestalRemoval) {         
+           TString mySelector = "srsChan==" + std::to_string(srsChan[i]) + "&& srsChip==" + std::to_string(srsChip[i]) + "&& srsFec==" + std::to_string(srsFec[i]);
+
+           tped->Draw("ped_stdev>>pedSTD", mySelector);
+           tped->Draw("ped_mean>>pedMean", mySelector);
+
+           if (myconfiguration.Verbose) cout << "Pedestal_Mean= " << pedMean->GetMean();
+           if (myconfiguration.Verbose) cout << ", Pedestal_STD= " << pedSTD->GetMean() << endl;
+       }
+       if ( raw_q[i][0] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc0[i] = raw_q[i][0];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][1] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc1[i] = raw_q[i][1];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][2] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc2[i] = raw_q[i][2];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][3] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc3[i] = raw_q[i][3];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][4] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc4[i] = raw_q[i][4];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][5] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc5[i] = raw_q[i][5];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][6] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc6[i] = raw_q[i][6];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][7] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc7[i] = raw_q[i][7];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][8] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc8[i] = raw_q[i][8];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][9] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc9[i] = raw_q[i][9];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][10] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc10[i] = raw_q[i][10];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][11] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc11[i] = raw_q[i][11];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][12] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc12[i] = raw_q[i][12];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][13] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc13[i] = raw_q[i][13];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][14] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc14[i] = raw_q[i][14];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][15] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc15[i] = raw_q[i][15];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][16] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc16[i] = raw_q[i][16];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][17] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc17[i] = raw_q[i][17];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][18] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc18[i] = raw_q[i][18];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][19] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc19[i] = raw_q[i][19];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][20] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc20[i] = raw_q[i][20];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][21] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc21[i] = raw_q[i][21];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][22] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc22[i] = raw_q[i][22];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
+       }
+
+       if ( raw_q[i][23] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc23[i] = raw_q[i][23];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
+       }
+
+       if ( raw_q[i][24] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc24[i] = raw_q[i][24];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
+       }
+
+       if ( raw_q[i][25] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc25[i] = raw_q[i][25];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
+       }
+
+       if ( raw_q[i][26] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc26[i] = raw_q[i][26];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
+       }
+
+       if ( raw_q[i][27] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
+           adc27[i] = raw_q[i][27];
+       }
+       else {
+           //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
+       }
+
+       delete pedSTD;
+       delete pedMean;
+   }
+   // -------------------------------------------------------
+
+
 
    // Translating APV channel into Physical Mapping --------------
    for (int i = 0; i < nCh; i++){
@@ -137,7 +355,6 @@ Bool_t apv_raw::Process(Long64_t entry) {
        for (int k = 1; k <= myconfiguration.NumberOfChips; k++){
            if ( (srsFec[i] == myconfiguration.FecID[k] ) && ( srsChip[i] == myconfiguration.adcCh[k]) ) {
                Flip = myconfiguration.Flip[k];
-
                // Get the DetectorPlane and consider the Virtual thing
                Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
                Position[i] = myconfiguration.Position[ Sector[i] ];
@@ -167,11 +384,13 @@ Bool_t apv_raw::Process(Long64_t entry) {
    // ----------------------------------------------------------
 
 
+   // X-talk calculation
    for ( int i = 0; i < nCh; i++ ) {
        for ( int j = i + 1; j < nCh; j++ ) {
            if ( Sector[i] == Sector[j] ) hitDistance[i] = srsChanMapped[i] - srsChanMapped[j];
        }
    }
+
 
    //
    // Clusterization algorithm
@@ -237,16 +456,10 @@ Bool_t apv_raw::Process(Long64_t entry) {
            if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " ";
            if (myconfiguration.Verbose) cout << " ClusterPosition[" << (nclust-1) << "] = " << clustPos[0] << RESET << std::endl;
        }
-/*
-       // Verbose Printout of Mapped channels and raw strips
-       if (myconfiguration.Verbose) if (i>=0) cout << "srsChanMapped = ";
-       if (myconfiguration.Verbose) if (i>=0) cout << std::setw(3) << srsChanMapped[i] << " ";
-       if (myconfiguration.Verbose) if (i>=0) cout << "(APV channel=" << std::setw(3) << srsChan[i] << ") ";
-       if (myconfiguration.Verbose) if (i>=0) cout << " Sector=" << Sector[i] << " ";
-       if (myconfiguration.Verbose) if (i>=0) cout << std::setw(3) << " Plane Pos.=" << Position[i] << std::endl;
-*/
-       // Assigning THit Branches
+
+       // Assigning ADC Branches
        strip[i] = srsChanMapped[i];           //Straight from hits: srsChanMapped[i];
+/*
        adc0[i] = raw_q[i][0];
        adc1[i] = raw_q[i][1];
        adc2[i] = raw_q[i][2];
@@ -275,21 +488,15 @@ Bool_t apv_raw::Process(Long64_t entry) {
        adc25[i] = raw_q[i][25];
        adc26[i] = raw_q[i][26];
        adc27[i] = raw_q[i][27];
+*/
        hitTimebin[i] = t_max_q[i];
        detID[i] = srsChip[i];
        planeID[i] = Position[i];
    }
    if (myconfiguration.Verbose) cout << std::setw(3) << "Number of Clusters = " << nclust << endl;
-/*
-   for (int i = 0; i < nclust; i++) {
-       detID[i] = srsChip[i];
-       planeID[i] = Position[i];
-       if (myconfiguration.Verbose) cout << std::setw(3) << "Position Cluster["<<i<<"]=" << std::setfill(' ') << std::setw(5) << clustPos[i] << " ";
-       if (myconfiguration.Verbose) cout << std::setw(2) << "Cluster Size["<<i<<"]=" << clustSize[i];
-       if (myconfiguration.Verbose) cout << " Position = " << Position[i];
-       if (myconfiguration.Verbose) cout << " Sector = " << Sector[i] << " " << RESET << std::endl;
-   }
-*/
+
+
+
    //
    // Tree filling
    //    

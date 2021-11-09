@@ -17,6 +17,7 @@
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
 #include <TTreeReaderArray.h>
+#include "TH1.h"
 
 // Headers needed by this particular selector
 #include <vector>
@@ -58,8 +59,10 @@ public :
    static const Int_t MAXCLUSTER = 100;
 
    TFile* recofile;
+   TFile* myfile;
    TTree* THit;
    TTree* TCluster;
+   TTree* tped;
    Int_t           evtID;
    Int_t           nCh;
    Int_t           hitTimebin[MAXHITS];
@@ -70,6 +73,7 @@ public :
    Int_t           srsChanMapped[MAXHITS];   
    Int_t           srsChanTemp[MAXHITS];
    Int_t           Sector[MAXHITS];
+   Int_t           AboveTHR[MAXHITS];
    Int_t	   Position[MAXHITS];
    Int_t           Offset[MAXHITS];
    Double_t        StripPitch[MAXHITS];
@@ -142,6 +146,8 @@ void apv_raw::Init(TTree *tree) {
 }
 
 Bool_t apv_raw::Notify() {
+   myfile = fReader.GetTree()->GetCurrentFile();
+   tped = dynamic_cast<TTree*>(myfile->Get("apv_raw_ped"));
    return kTRUE;
 }
 

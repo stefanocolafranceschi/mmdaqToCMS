@@ -22,6 +22,9 @@ int ReadConf::LoadConfiguration() {
         return 1;
     }
     Verbose = reader.GetBoolean("General", "Verbose", false);
+    MonitorEvents = reader.GetInteger("General", "MonitorEvents", 100);
+    PedestalRemoval = reader.GetBoolean("General", "PedestalRemoval", true); 
+    PedestalCut = reader.GetInteger("General", "PedestalCut", 3);
     ReadoutType = reader.Get("General", "ReadoutType", "PLAIN");
     NumberOfChips = reader.GetInteger("General", "NumberOfChips", 0);
     Reco = reader.Get("General", "Reco", "All");
