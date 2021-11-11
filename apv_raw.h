@@ -63,6 +63,7 @@ public :
    TTree* THit;
    TTree* TCluster;
    TTree* tped;
+   Int_t	   counter;
    Int_t           evtID;
    Int_t           nCh;
    Int_t           hitTimebin[MAXHITS];
@@ -73,7 +74,7 @@ public :
    Int_t           srsChanMapped[MAXHITS];   
    Int_t           srsChanTemp[MAXHITS];
    Int_t           Sector[MAXHITS];
-   Int_t           AboveTHR[MAXHITS];
+   Bool_t          aboveTHR[MAXHITS];
    Int_t	   Position[MAXHITS];
    Int_t           Offset[MAXHITS];
    Double_t        StripPitch[MAXHITS];

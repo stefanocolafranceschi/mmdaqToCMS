@@ -28,6 +28,7 @@ int ReadConf::LoadConfiguration() {
     ReadoutType = reader.Get("General", "ReadoutType", "PLAIN");
     NumberOfChips = reader.GetInteger("General", "NumberOfChips", 0);
     Reco = reader.Get("General", "Reco", "All");
+    AnalysisType = reader.Get("General", "AnalysisType", "Integral");
     MaxEvents = reader.GetInteger("General", "MaxEvents", 100000000);
     for (int i = 1; i <= 4; i++) {
         Position[i] = reader.GetInteger("Sector"+std::to_string(i), "Position", 0);
