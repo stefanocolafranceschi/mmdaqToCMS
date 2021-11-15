@@ -26,6 +26,7 @@ int ReadConf::LoadConfiguration() {
     PedestalRemoval = reader.GetBoolean("General", "PedestalRemoval", true); 
     PedestalCut = reader.GetInteger("General", "PedestalCut", 3);
     ReadoutType = reader.Get("General", "ReadoutType", "PLAIN");
+    OutputFile = reader.Get("General", "OutputFile", "output.root");
     NumberOfChips = reader.GetInteger("General", "NumberOfChips", 0);
     Reco = reader.Get("General", "Reco", "All");
     AnalysisType = reader.Get("General", "AnalysisType", "Integral");
