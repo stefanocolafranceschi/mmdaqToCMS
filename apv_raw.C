@@ -109,7 +109,6 @@ void apv_raw::SlaveBegin(TTree * /*tree*/) {
 
 Bool_t apv_raw::Process(Long64_t entry) {
 
-   //sleep(1);
    fReader.SetLocalEntry(entry);
    evtID = *evt;
    nclust = 0;
@@ -129,263 +128,156 @@ Bool_t apv_raw::Process(Long64_t entry) {
    int kk = 0;
    // Pedestal Removal ------------------------------------
    if (myconfiguration.PedestalRemoval) {
+
+/*
+       vector<double> *vsrsChip = NULL;
+       vector<double> *vsrsChan = NULL;
+       vector<double> *vped_std = NULL;
+*/
+       TBranch *branchSrsChip = tped->GetBranch("srsChip");
+       TBranch *branchSrsChan = tped->GetBranch("srsChan");
+       TBranch *branchPedSTD = tped->GetBranch("ped_stdev");
+    
+       tped->SetBranchStatus("*",0);
+       tped->SetBranchStatus("srsChip",1);
+       tped->SetBranchStatus("srsChan",1);
+       tped->SetBranchStatus("ped_stdev",1);
+       tped->SetBranchAddress("srsChip",&vsrsChip);
+       tped->SetBranchAddress("srsChan",&vsrsChan);
+       tped->SetBranchAddress("ped_stdev",&vped_std);
+       branchSrsChip->GetEntry(0);
+       branchSrsChan->GetEntry(0);
+       branchPedSTD->GetEntry(0);
+       // The following printout get 1536 elements as 128*12=1536
+       //cout << vsrsChip->size() << " " << vped_std->size() << " " << vsrsChan->size() << endl;
+
        for (int i = 0; i < nCh; i++){
+
+           for(int ik = 0; ik < vped_std->size(); ik++) {
+               if (  (vsrsChip->at(ik) == srsChip[i]) && (vsrsChan->at(ik) == srsChan[i])  )  {
+                   //if (myconfiguration.Verbose) cout << ", Chip"<<srsChip[i] << " Pedestal_STD of srsChan=" << srsChan[i] << " is " << vped_std->at(srsChan[i]) << endl;                   
+                   pedSTDvalue = vped_std->at(srsChan[i]);
+               }
+           }
+
            Double_t HighestPeak;
 
-           //aboveTHR[i] = false;
-           TH1D* pedMean = new TH1D("pedMean", "pedMean", 1, 0, 10000);
-           TH1D* pedSTD = new TH1D("pedSTD", "pedSTD", 1, 0, 100);
+           // For debugging (very slow) --------------------------------------------------
+           //TH1D* pedMean = new TH1D("pedMean", "pedMean", 1, 0, 10000);
+           //TH1D* pedSTD = new TH1D("pedSTD", "pedSTD", 1, 0, 100);
           
-           TString mySelector = "srsChan==" + std::to_string(srsChan[i]) + "&& srsChip==" + std::to_string(srsChip[i]) + "&& srsFec==" + std::to_string(srsFec[i]);
+           //TString mySelector = "srsChan==" + std::to_string(srsChan[i]) + "&& srsChip==" + std::to_string(srsChip[i]) + "&& srsFec==" + std::to_string(srsFec[i]);
 
-           tped->Draw("ped_stdev>>pedSTD", mySelector);
-           tped->Draw("ped_mean>>pedMean", mySelector);
+           //tped->Draw("ped_stdev>>pedSTD", mySelector);
+           //tped->Draw("ped_mean>>pedMean", mySelector);
 
-           if (myconfiguration.Verbose) cout << "Pedestal_Mean= " << pedMean->GetMean();
-           if (myconfiguration.Verbose) cout << ", Pedestal_STD= " << pedSTD->GetMean() << endl;
-       
-           //if ( raw_q[i][0] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc0[i] = raw_q[i][0];
-               HighestPeak = raw_q[i][0];             
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           //if (myconfiguration.Verbose) cout << "Pedestal_Mean= " << pedMean->GetMean();
+           //if (myconfiguration.Verbose) cout << ", Pedestal_STD= " << pedSTD->GetMean() << endl;
+           // ---------------------------------------------------------------------------------
 
-           //if ( raw_q[i][1] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc1[i] = raw_q[i][1];
+           adc0[i] = raw_q[i][0];
+           HighestPeak = raw_q[i][0];             
+
+           adc1[i] = raw_q[i][1];
 	       if ( raw_q[i][1] > HighestPeak ) HighestPeak = raw_q[i][1]; 
-          // }
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
 
-           //if ( raw_q[i][2] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc2[i] = raw_q[i][2];
-               if ( raw_q[i][2] > HighestPeak )	HighestPeak = raw_q[i][2];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc2[i] = raw_q[i][2];
+           if ( raw_q[i][2] > HighestPeak )	HighestPeak = raw_q[i][2];
 
-           //if ( raw_q[i][3] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc3[i] = raw_q[i][3];
-               if ( raw_q[i][3] > HighestPeak )	HighestPeak = raw_q[i][3];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc3[i] = raw_q[i][3];
+           if ( raw_q[i][3] > HighestPeak )	HighestPeak = raw_q[i][3];
 
-           //if ( raw_q[i][4] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc4[i] = raw_q[i][4];
-               if ( raw_q[i][4] > HighestPeak )	HighestPeak = raw_q[i][4];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc4[i] = raw_q[i][4];
+           if ( raw_q[i][4] > HighestPeak )	HighestPeak = raw_q[i][4];
 
-           //if ( raw_q[i][5] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc5[i] = raw_q[i][5];
-               if ( raw_q[i][5] > HighestPeak )	HighestPeak = raw_q[i][5];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc5[i] = raw_q[i][5];
+           if ( raw_q[i][5] > HighestPeak )	HighestPeak = raw_q[i][5];
 
-           //if ( raw_q[i][6] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc6[i] = raw_q[i][6];
-               if ( raw_q[i][6] > HighestPeak )	HighestPeak = raw_q[i][6];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc6[i] = raw_q[i][6];
+           if ( raw_q[i][6] > HighestPeak )	HighestPeak = raw_q[i][6];
 
-           //if ( raw_q[i][7] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc7[i] = raw_q[i][7];
-               if ( raw_q[i][7] > HighestPeak )	HighestPeak = raw_q[i][7];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc7[i] = raw_q[i][7];
+           if ( raw_q[i][7] > HighestPeak )	HighestPeak = raw_q[i][7];
 
-           //if ( raw_q[i][8] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc8[i] = raw_q[i][8];
-               if ( raw_q[i][8] > HighestPeak )	HighestPeak = raw_q[i][8];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc8[i] = raw_q[i][8];
+           if ( raw_q[i][8] > HighestPeak )	HighestPeak = raw_q[i][8];
 
-           //if ( raw_q[i][9] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc9[i] = raw_q[i][9];
-               if ( raw_q[i][9] > HighestPeak )	HighestPeak = raw_q[i][9];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc9[i] = raw_q[i][9];
+           if ( raw_q[i][9] > HighestPeak )	HighestPeak = raw_q[i][9];
 
-           //if ( raw_q[i][10] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc10[i] = raw_q[i][10];
-               if ( raw_q[i][10] > HighestPeak )	HighestPeak = raw_q[i][10];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc10[i] = raw_q[i][10];
+           if ( raw_q[i][10] > HighestPeak )	HighestPeak = raw_q[i][10];
 
-           //if ( raw_q[i][11] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc11[i] = raw_q[i][11];
-               if ( raw_q[i][11] > HighestPeak )	HighestPeak = raw_q[i][11];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc11[i] = raw_q[i][11];
+           if ( raw_q[i][11] > HighestPeak )	HighestPeak = raw_q[i][11];
 
-           //if ( raw_q[i][12] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc12[i] = raw_q[i][12];
-               if ( raw_q[i][12] > HighestPeak )	HighestPeak = raw_q[i][12];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc12[i] = raw_q[i][12];
+           if ( raw_q[i][12] > HighestPeak )	HighestPeak = raw_q[i][12];
 
-           //if ( raw_q[i][13] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc13[i] = raw_q[i][13];
-               if ( raw_q[i][13] > HighestPeak )	HighestPeak = raw_q[i][13];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc13[i] = raw_q[i][13];
+           if ( raw_q[i][13] > HighestPeak )	HighestPeak = raw_q[i][13];
 
-           //if ( raw_q[i][14] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc14[i] = raw_q[i][14];
-               if ( raw_q[i][14] > HighestPeak )	HighestPeak = raw_q[i][14];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc14[i] = raw_q[i][14];
+           if ( raw_q[i][14] > HighestPeak )	HighestPeak = raw_q[i][14];
 
-           //if ( raw_q[i][15] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc15[i] = raw_q[i][15];
-               if ( raw_q[i][15] > HighestPeak )	HighestPeak = raw_q[i][15];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc15[i] = raw_q[i][15];
+           if ( raw_q[i][15] > HighestPeak )	HighestPeak = raw_q[i][15];
 
-           //if ( raw_q[i][16] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc16[i] = raw_q[i][16];
-               if ( raw_q[i][16] > HighestPeak )	HighestPeak = raw_q[i][16];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc16[i] = raw_q[i][16];
+           if ( raw_q[i][16] > HighestPeak )	HighestPeak = raw_q[i][16];
 
-           //if ( raw_q[i][17] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc17[i] = raw_q[i][17];
-               if ( raw_q[i][17] > HighestPeak )	HighestPeak = raw_q[i][17];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc17[i] = raw_q[i][17];
+           if ( raw_q[i][17] > HighestPeak )	HighestPeak = raw_q[i][17];
 
-           //if ( raw_q[i][18] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc18[i] = raw_q[i][18];
-               if ( raw_q[i][18] > HighestPeak )	HighestPeak = raw_q[i][18];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc18[i] = raw_q[i][18];
+           if ( raw_q[i][18] > HighestPeak )	HighestPeak = raw_q[i][18];
 
-           //if ( raw_q[i][19] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc19[i] = raw_q[i][19];
-               if ( raw_q[i][19] > HighestPeak )	HighestPeak = raw_q[i][19];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc19[i] = raw_q[i][19];
+           if ( raw_q[i][19] > HighestPeak )	HighestPeak = raw_q[i][19];
 
-           //if ( raw_q[i][20] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc20[i] = raw_q[i][20];
-               if ( raw_q[i][20] > HighestPeak )	HighestPeak = raw_q[i][20];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc20[i] = raw_q[i][20];
+           if ( raw_q[i][20] > HighestPeak )	HighestPeak = raw_q[i][20];
 
-           //if ( raw_q[i][21] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc21[i] = raw_q[i][21];
-               if ( raw_q[i][21] > HighestPeak )	HighestPeak = raw_q[i][21];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc21[i] = raw_q[i][21];
+           if ( raw_q[i][21] > HighestPeak )	HighestPeak = raw_q[i][21];
 
-           //if ( raw_q[i][22] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc22[i] = raw_q[i][22];
-               if ( raw_q[i][22] > HighestPeak )	HighestPeak = raw_q[i][22];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit ["<<i<<"] to be removed."<< endl;
-           //}
+           adc22[i] = raw_q[i][22];
+           if ( raw_q[i][22] > HighestPeak )	HighestPeak = raw_q[i][22];
 
-           //if ( raw_q[i][23] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc23[i] = raw_q[i][23];
-               if ( raw_q[i][23] > HighestPeak )	HighestPeak = raw_q[i][23];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
-           //}
+           adc23[i] = raw_q[i][23];
+           if ( raw_q[i][23] > HighestPeak )	HighestPeak = raw_q[i][23];
 
-           //if ( raw_q[i][24] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc24[i] = raw_q[i][24];
-               if ( raw_q[i][24] > HighestPeak )	HighestPeak = raw_q[i][24];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
-           //}
+           adc24[i] = raw_q[i][24];
+           if ( raw_q[i][24] > HighestPeak )	HighestPeak = raw_q[i][24];
 
-           //if ( raw_q[i][25] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc25[i] = raw_q[i][25];
-               if ( raw_q[i][25] > HighestPeak )	HighestPeak = raw_q[i][25];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
-           //}
+           adc25[i] = raw_q[i][25];
+           if ( raw_q[i][25] > HighestPeak )	HighestPeak = raw_q[i][25];
 
-           //if ( raw_q[i][26] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc26[i] = raw_q[i][26];
-               if ( raw_q[i][26] > HighestPeak )	HighestPeak = raw_q[i][26];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
-           //}
+           adc26[i] = raw_q[i][26];
+           if ( raw_q[i][26] > HighestPeak )	HighestPeak = raw_q[i][26];
 
-           //if ( raw_q[i][27] > myconfiguration.PedestalCut * pedSTD->GetMean() ) {
-               adc27[i] = raw_q[i][27];
-               if ( raw_q[i][27] > HighestPeak )	HighestPeak = raw_q[i][27];
-           //}
-           //else {
-               //if (myconfiguration.Verbose) cout << "Charge " << raw_q[i][0] << "below Pedestal, hit $
-           //}
+           adc27[i] = raw_q[i][27];
+           if ( raw_q[i][27] > HighestPeak )	HighestPeak = raw_q[i][27];
 
            if ( myconfiguration.AnalysisType == "Integral" ) {
                Double_t ChargeIntegral = 0;
                for (int jj = 0; jj < 27; jj++) {
                    ChargeIntegral = ChargeIntegral + raw_q[i][jj];
                }
-               if ( (ChargeIntegral/27) > pedSTD->GetMean() ) {
+               if ( (ChargeIntegral/27) > pedSTDvalue ) {
                    srsChanTemp[kk] = srsChan[i];
        	       	   kk++;
                }
            }
            if ( myconfiguration.AnalysisType == "Peak" ) {
-               if ( HighestPeak > pedSTD->GetMean() ) {
+               if ( HighestPeak > pedSTDvalue ) {
                    srsChanTemp[kk] = srsChan[i];
                    kk++;
                }
            }
-           delete pedSTD;
-           delete pedMean;
+           //delete pedSTD;
+           //delete pedMean;
+
        }
    }
    else {

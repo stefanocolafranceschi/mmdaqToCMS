@@ -17,6 +17,8 @@
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
 #include <TTreeReaderArray.h>
+#include <vector>
+#include "TTree.h"
 #include "TH1.h"
 
 // Headers needed by this particular selector
@@ -58,11 +60,19 @@ public :
    static const Int_t MAXHITS = 100;
    static const Int_t MAXCLUSTER = 100;
 
+
+   //vector<double> *vped_mean, *vsrsChip;
    TFile* recofile;
    TFile* myfile;
    TTree* THit;
    TTree* TCluster;
    TTree* tped;
+   double pedSTDvalue;
+
+    vector<double> *vsrsChip = NULL;
+    vector<double> *vsrsChan = NULL;
+    vector<double> *vped_std = NULL;
+
    Int_t	   counter;
    Int_t           evtID;
    Int_t           nCh;
