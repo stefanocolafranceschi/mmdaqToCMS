@@ -65,40 +65,40 @@ void apv_raw::Begin(TTree * /*tree*/) {
 
    THit = new TTree("THit","Hit Branch");
    THit->Branch("evtID",&evtID,"evtID/I");
-   THit->Branch("nCh",&nCh,"nCh/I");
+   THit->Branch("nch",&nch,"nch/I");
    THit->Branch("hitDistance",&hitDistance,"hitDistance/I");
-   THit->Branch("strip",strip,"strip[nCh]/I");
-   THit->Branch("hitTimebin",hitTimebin,"hitTimebin[nCh]/I");
-   THit->Branch("detID",detID,"detID[nCh]/I");
-   THit->Branch("planeID",planeID,"planeID[nCh]/F");
-   THit->Branch("adc0",adc0,"adc0[nCh]/S");
-   THit->Branch("adc1",adc1,"adc1[nCh]/S");
-   THit->Branch("adc2",adc2,"adc2[nCh]/S");
-   THit->Branch("adc3",adc3,"adc3[nCh]/S");
-   THit->Branch("adc4",adc4,"adc4[nCh]/S");
-   THit->Branch("adc5",adc5,"adc5[nCh]/S");
-   THit->Branch("adc6",adc6,"adc6[nCh]/S");
-   THit->Branch("adc7",adc7,"adc7[nCh]/S");
-   THit->Branch("adc8",adc8,"adc8[nCh]/S");
-   THit->Branch("adc9",adc9,"adc9[nCh]/S");
-   THit->Branch("adc10",adc10,"adc10[nCh]/S");
-   THit->Branch("adc11",adc11,"adc11[nCh]/S");
-   THit->Branch("adc12",adc12,"adc12[nCh]/S");
-   THit->Branch("adc13",adc13,"adc13[nCh]/S");
-   THit->Branch("adc14",adc14,"adc14[nCh]/S");
-   THit->Branch("adc15",adc15,"adc15[nCh]/S");
-   THit->Branch("adc16",adc16,"adc16[nCh]/S");
-   THit->Branch("adc17",adc17,"adc17[nCh]/S");
-   THit->Branch("adc18",adc18,"adc18[nCh]/S");
-   THit->Branch("adc19",adc19,"adc19[nCh]/S");
-   THit->Branch("adc20",adc20,"adc20[nCh]/S");
-   THit->Branch("adc21",adc21,"adc21[nCh]/S");
-   THit->Branch("adc22",adc22,"adc22[nCh]/S");
-   THit->Branch("adc23",adc23,"adc23[nCh]/S");
-   THit->Branch("adc24",adc24,"adc24[nCh]/S");
-   THit->Branch("adc25",adc25,"adc25[nCh]/S");
-   THit->Branch("adc26",adc26,"adc26[nCh]/S");
-   THit->Branch("adc27",adc27,"adc27[nCh]/S");
+   THit->Branch("strip",strip,"strip[nch]/I");
+   THit->Branch("hitTimebin",hitTimebin,"hitTimebin[nch]/I");
+   THit->Branch("detID",detID,"detID[nch]/I");
+   THit->Branch("planeID",planeID,"planeID[nch]/F");
+   THit->Branch("adc0",adc0,"adc0[nch]/S");
+   THit->Branch("adc1",adc1,"adc1[nch]/S");
+   THit->Branch("adc2",adc2,"adc2[nch]/S");
+   THit->Branch("adc3",adc3,"adc3[nch]/S");
+   THit->Branch("adc4",adc4,"adc4[nch]/S");
+   THit->Branch("adc5",adc5,"adc5[nch]/S");
+   THit->Branch("adc6",adc6,"adc6[nch]/S");
+   THit->Branch("adc7",adc7,"adc7[nch]/S");
+   THit->Branch("adc8",adc8,"adc8[nch]/S");
+   THit->Branch("adc9",adc9,"adc9[nch]/S");
+   THit->Branch("adc10",adc10,"adc10[nch]/S");
+   THit->Branch("adc11",adc11,"adc11[nch]/S");
+   THit->Branch("adc12",adc12,"adc12[nch]/S");
+   THit->Branch("adc13",adc13,"adc13[nch]/S");
+   THit->Branch("adc14",adc14,"adc14[nch]/S");
+   THit->Branch("adc15",adc15,"adc15[nch]/S");
+   THit->Branch("adc16",adc16,"adc16[nch]/S");
+   THit->Branch("adc17",adc17,"adc17[nch]/S");
+   THit->Branch("adc18",adc18,"adc18[nch]/S");
+   THit->Branch("adc19",adc19,"adc19[nch]/S");
+   THit->Branch("adc20",adc20,"adc20[nch]/S");
+   THit->Branch("adc21",adc21,"adc21[nch]/S");
+   THit->Branch("adc22",adc22,"adc22[nch]/S");
+   THit->Branch("adc23",adc23,"adc23[nch]/S");
+   THit->Branch("adc24",adc24,"adc24[nch]/S");
+   THit->Branch("adc25",adc25,"adc25[nch]/S");
+   THit->Branch("adc26",adc26,"adc26[nch]/S");
+   THit->Branch("adc27",adc27,"adc27[nch]/S");
     
    if (myconfiguration.Verbose) cout << "Initialization done" << endl;
 }
@@ -112,16 +112,16 @@ Bool_t apv_raw::Process(Long64_t entry) {
    fReader.SetLocalEntry(entry);
    evtID = *evt;
    nclust = 0;
-   nCh = srsChan.GetSize();
-   if ( nCh > MAXHITS) return kTRUE;
+   nch = srsChan.GetSize();
+   if ( nch > MAXHITS) return kTRUE;
 
    if ( (entry%myconfiguration.MonitorEvents==0) && (myconfiguration.MonitorEvents!=123) ) cout << "Event = " << entry << endl;
 
-   if (myconfiguration.Verbose) cout << BLUE << "\n\nProcessing event " << evtID << " (entry=" << entry << "), found " << nCh << " fired channels." << RESET << endl;
+   if (myconfiguration.Verbose) cout << BLUE << "\n\nProcessing event " << evtID << " (entry=" << entry << "), found " << nch << " fired channels." << RESET << endl;
    
 
    // Pedestal is not considered (at the beginning) -------
-   for (int i = 0; i < nCh; i++){
+   for (int i = 0; i < nch; i++){
        aboveTHR[i] = true;
    }
 
@@ -151,7 +151,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
        // The following printout get 1536 elements as 128*12=1536
        //cout << vsrsChip->size() << " " << vped_std->size() << " " << vsrsChan->size() << endl;
 
-       for (int i = 0; i < nCh; i++){
+       for (int i = 0; i < nch; i++){
 
            for(int ik = 0; ik < vped_std->size(); ik++) {
                if (  (vsrsChip->at(ik) == srsChip[i]) && (vsrsChan->at(ik) == srsChan[i])  )  {
@@ -281,7 +281,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
        }
    }
    else {
-       for (int i = 0; i < nCh; i++){
+       for (int i = 0; i < nch; i++){
            srsChanTemp[i] = srsChan[i];
            adc0[i] = raw_q[i][0];
            adc1[i] = raw_q[i][1];
@@ -315,10 +315,10 @@ Bool_t apv_raw::Process(Long64_t entry) {
    }
    // -------------------------------------------------------
 
-   if (myconfiguration.PedestalRemoval) nCh = kk;
+   if (myconfiguration.PedestalRemoval) nch = kk;
 
    // Translating APV channel into Physical Mapping --------------
-   for (int i = 0; i < nCh; i++){
+   for (int i = 0; i < nch; i++){
        srsChanMapped[i] = CustomMapping(myconfiguration.ReadoutType, srsChanTemp[i]);
    }
    // ------------------------------------------------------------
@@ -330,7 +330,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
    // Check every hit in the event, if an hit belongs to a chip that needs to be flipped
    // utilizes the FlipChannel routine. Use both srsFec and srsChip to determine the ETA Sector
    //
-   for (int i = 0; i < nCh; i++) {
+   for (int i = 0; i < nch; i++) {
        if (myconfiguration.Verbose) cout << GREEN << "SRSFEC[" << i << "] = " << srsFec[i] << " SRSCHIP["<<i<<"] = "<< srsChip[i] << RESET << std::endl;
 
        bool Flip = false;
@@ -344,7 +344,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
                StripPitch[i] = static_cast<double>(myconfiguration.Size[ Sector[i] ]) / (128*myconfiguration.Chips[ Sector[i] ]);
 
                //if (myconfiguration.Chips[k]<=0) StripPitch[i] = 0;
-               if (myconfiguration.Verbose) cout << BOLDGREEN << " Nch[= " << i << "], Sector = "<< Sector[i];
+               if (myconfiguration.Verbose) cout << BOLDGREEN << " nch[= " << i << "], Sector = "<< Sector[i];
                if (myconfiguration.Verbose) cout << ", Position = " << Position[i];
                if (myconfiguration.Verbose) cout << ", Offset = "<< Offset[i];
                if (myconfiguration.Verbose) cout << ", Size = " << myconfiguration.Size[ Sector[i] ];
@@ -361,15 +361,15 @@ Bool_t apv_raw::Process(Long64_t entry) {
 	   srsChanTemp[i] = Offset[i] + srsChanMapped[i];
        }
    }   
-   for (int i = 0; i < nCh; i++) {        
+   for (int i = 0; i < nch; i++) {        
        srsChanMapped[i]=srsChanTemp[i];
    }
    // ----------------------------------------------------------
 
 
    // X-talk calculation
-   for ( int i = 0; i < nCh; i++ ) {
-       for ( int j = i + 1; j < nCh; j++ ) {
+   for ( int i = 0; i < nch; i++ ) {
+       for ( int j = i + 1; j < nch; j++ ) {
            if ( Sector[i] == Sector[j] ) hitDistance[i] = srsChanMapped[i] - srsChanMapped[j];
        }
    }
@@ -378,40 +378,45 @@ Bool_t apv_raw::Process(Long64_t entry) {
    //
    // Clusterization algorithm
    //
-   for (int i = 0; i < nCh; i++) {
+   for (int i = 0; i < nch; i++) {
 
        if (i>=1) {
            // Contiguous hit not found
            if ( (Position[i]==Position[i-1]) && ( abs(srsChanMapped[i]-srsChanMapped[i-1]) > 1) ) {
 
-               // Archieve the cluster found
+               // Archive the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
+               clustTimebin[nclust-1] = (float)clustTimebin[nclust-1]/clustSize[nclust-1];
                nclust++;
 
                // Start a new cluster (position, ADC, timing)......
-               clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i];
+               clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i] - 192*StripPitch[i];
                clustSize[nclust-1] = 1;
                clustPlaneID[nclust-1] = Position[i];
                clustdetID[nclust-1] = srsChip[i];
                clustADCs[nclust-1] = raw_q[i][0];
+               clustTimebin[nclust-1] = t_max_q[i];
                
                for (int z = 1; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
                }
-               clustTimebin[nclust-1] = t_max_q[i];
            }
            else {
-               clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i];
-               clustSize[nclust-1]++;
-
+               clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i] - 192*StripPitch[i];;
+               clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
                clustPlaneID[nclust-1] = Position[i];
                clustdetID[nclust-1] = srsChip[i];
+               clustSize[nclust-1]++;
+
 
                for (int z = 0; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
        	       }
-               clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
-               if (i==(nCh-1)) clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
+               if (i==(nch-1)) {
+                    clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
+                    clustTimebin[nclust-1] = (float)clustTimebin[nclust-1]/clustSize[nclust-1];
+                }
+
            }
            if (myconfiguration.Verbose) cout <<	RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
            if (myconfiguration.Verbose) cout << ", apvHit["<< i << "] = " << srsChan[i];
@@ -426,7 +431,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
            clustPlaneID[0] = Position[i];
            clustdetID[0] = srsChip[i];
            clustSize[0] = 1;
-           clustPos[0] = StripPitch[i] * srsChanMapped[i];
+           clustPos[0] = StripPitch[i] * srsChanMapped[i] - 192*StripPitch[i];
            clustADCs[0] = raw_q[i][0];
            for (int z = 1; z < 26; z++) {
                clustADCs[0] = clustADCs[0] + raw_q[i][z];

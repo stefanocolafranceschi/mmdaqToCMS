@@ -75,7 +75,7 @@ public :
 
    Int_t	   counter;
    Int_t           evtID;
-   Int_t           nCh;
+   Int_t           nch;
    Int_t           hitTimebin[MAXHITS];
    Int_t           hitDistance[MAXHITS];
    Int_t           detID[MAXHITS];
