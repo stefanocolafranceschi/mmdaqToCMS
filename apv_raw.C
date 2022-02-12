@@ -308,42 +308,39 @@ Bool_t apv_raw::Process(Long64_t entry) {
    for (int i = 0; i < nCh; i++) {
        if (myconfiguration.Verbose) cout << GREEN << "SRSFEC[" << i << "] = " << srsFec[i] << " SRSCHIP["<<i<<"] = "<< srsChip[i] << RESET << std::endl;
 
-       bool Flip = false;
-       for (int k = 1; k <= myconfiguration.NumberOfChips; k++){
-           if ( (srsFec[i] == myconfiguration.FecID[k] ) && ( srsChip[i] == myconfiguration.adcCh[k]) ) {
-               Flip = myconfiguration.Flip[k];
+       //bool Flip = false;
+       //for (int k = 1; k <= myconfiguration.NumberOfChips; k++){
+           //if ( (srsFec[i] == myconfiguration.FecID[k] ) && ( srsChip[i] == myconfiguration.adcCh[k]) ) {
+               //Flip = myconfiguration.Flip[k];
                // Get the DetectorPlane and consider the Virtual thing
-               Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
+               //Sector[i] = myconfiguration.DetPlane[k] + EtaAdd(myconfiguration.ReadoutType, srsChan[i]);
 
-               // This block adapts the previous code to mmStrip
-               if (mmStrip[i] > 383) {
-                   Sector[i] = myconfiguration.DetPlane[k] + 1;
-               }
-               else {
-                   Sector[i] = myconfiguration.DetPlane[k];
-               }
-
+               Sector[i] = mmReadout[i]-47;
                Position[i] = myconfiguration.Position[ Sector[i] ];
-               Offset[i] = myconfiguration.apvIndex[k] * 64;
+               planeID[i] = myconfiguration.Position[ Sector[i] ];
+
+               //Offset[i] = myconfiguration.apvIndex[k] * 64;
                StripPitch[i] = static_cast<double>(myconfiguration.Size[ Sector[i] ]) / (128*myconfiguration.Chips[ Sector[i] ]);
 
                //if (myconfiguration.Chips[k]<=0) StripPitch[i] = 0;
                if (myconfiguration.Verbose) cout << BOLDGREEN << " Nch[= " << i << "], Sector = "<< Sector[i];
                if (myconfiguration.Verbose) cout << ", Position = " << Position[i];
-               if (myconfiguration.Verbose) cout << ", Offset = "<< Offset[i];
+               //if (myconfiguration.Verbose) cout << ", Offset = "<< Offset[i];
                if (myconfiguration.Verbose) cout << ", Size = " << myconfiguration.Size[ Sector[i] ];
-               if (myconfiguration.Verbose) cout << ", Chips = " << myconfiguration.Chips[ Sector[i] ];
+               //if (myconfiguration.Verbose) cout << ", Chips = " << myconfiguration.Chips[ Sector[i] ];
                if (myconfiguration.Verbose) cout << ", StripPitch = " << StripPitch[i];
                if (myconfiguration.Verbose) cout << ", above THR = " << aboveTHR[i] << RESET << std::endl;
-           }
-       }
+           //}
+       //}
 
+       /*
        if (Flip) {
            srsChanTemp[i] = Offset[i] + FlipChannel(srsChanMapped[i]);
        }
        else {
 	       srsChanTemp[i] = Offset[i] + srsChanMapped[i];
        }
+       */
    }   
    for (int i = 0; i < nCh; i++) {        
        srsChanMapped[i] = srsChanTemp[i];
@@ -438,7 +435,10 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
        hitTimebin[i] = t_max_q[i];
        detID[i] = srsChip[i];
+       Sector[i] = mmReadout[i]-47;
+       Position[i] = myconfiguration.Position[ Sector[i] ];
        planeID[i] = Position[i];
+
    }
    if (myconfiguration.Verbose) cout << std::setw(3) << "Number of Clusters = " << nclust << endl;
 
