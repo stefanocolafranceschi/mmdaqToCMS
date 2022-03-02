@@ -376,10 +376,12 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
                // Archieve the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
+               clustTimebin[nclust-1] = t_max_q[i] / clustSize[nclust-1];
                nclust++;
 
                // Start a new cluster (position, ADC, timing)......
-               clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i];
+               clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
+               clustTimebin[nclust-1] = t_max_q[i];
                clustSize[nclust-1] = 1;
                clustPlaneID[nclust-1] = Position[i];
                clustdetID[nclust-1] = srsChip[i];
@@ -388,10 +390,10 @@ Bool_t apv_raw::Process(Long64_t entry) {
                for (int z = 1; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
                }
-               clustTimebin[nclust-1] = t_max_q[i];
            }
            else {
-               clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i];
+               clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
+               clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
                clustSize[nclust-1]++;
 
                clustPlaneID[nclust-1] = Position[i];
@@ -400,8 +402,11 @@ Bool_t apv_raw::Process(Long64_t entry) {
                for (int z = 0; z < 26; z++) {
                    clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
        	       }
-               clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
-               if (i==(nCh-1)) clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
+               if (i==(nCh-1)) {
+                   clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
+                   clustTimebin[nclust-1]=(int)clustTimebin[nclust-1]/clustSize[nclust-1];                   
+               }
+
            }
            if (myconfiguration.Verbose) cout <<	RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
            if (myconfiguration.Verbose) cout << ", apvHit["<< i << "] = " << srsChan[i];
@@ -416,7 +421,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
            clustPlaneID[0] = Position[i];
            clustdetID[0] = srsChip[i];
            clustSize[0] = 1;
-           clustPos[0] = StripPitch[i] * srsChanMapped[i];
+           clustPos[0] = StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;;
            clustADCs[0] = raw_q[i][0];
            for (int z = 1; z < 26; z++) {
                clustADCs[0] = clustADCs[0] + raw_q[i][z];
