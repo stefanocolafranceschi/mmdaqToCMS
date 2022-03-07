@@ -371,8 +371,8 @@ Bool_t apv_raw::Process(Long64_t entry) {
    for (int i = 0; i < nCh; i++) {
 
        if (i>=1) {
-           // Contiguous hit not found
-           if ( (Position[i]==Position[i-1]) && ( abs(srsChanMapped[i]-srsChanMapped[i-1]) > 1) ) {
+           // Contiguous hit NOT found
+           if ( Position[i]!=Position[i-1]) {
 
                // Archieve the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
@@ -392,21 +392,43 @@ Bool_t apv_raw::Process(Long64_t entry) {
                }
            }
            else {
-               clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
-               clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
-               clustSize[nclust-1]++;
+           // Contiguous hit found
+               if ( abs(srsChanMapped[i]-srsChanMapped[i-1]) == 1) {
+                   clustPos[nclust-1] = clustPos[nclust-1] + StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
+                   clustTimebin[nclust-1] = clustTimebin[nclust-1] + t_max_q[i];
+                   clustSize[nclust-1]++;
 
-               clustPlaneID[nclust-1] = Position[i];
-               clustdetID[nclust-1] = srsChip[i];
+                   clustPlaneID[nclust-1] = Position[i];
+                   clustdetID[nclust-1] = srsChip[i];
 
-               for (int z = 0; z < 26; z++) {
-                   clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
-       	       }
-               if (i==(nCh-1)) {
-                   clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
-                   clustTimebin[nclust-1]=(int)clustTimebin[nclust-1]/clustSize[nclust-1];                   
+                   for (int z = 0; z < 26; z++) {
+                       clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
+           	       }
+                   if (i==(nCh-1)) {
+                       clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
+                       clustTimebin[nclust-1]=(int)clustTimebin[nclust-1]/clustSize[nclust-1];                   
+                   }
                }
+               else {
 
+                   // Archieve the cluster found
+                   clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
+                   clustTimebin[nclust-1] = t_max_q[i] / clustSize[nclust-1];
+                   nclust++;
+
+                   // Start a new cluster (position, ADC, timing)......
+                   clustPos[nclust-1] = StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
+                   clustTimebin[nclust-1] = t_max_q[i];
+                   clustSize[nclust-1] = 1;
+                   clustPlaneID[nclust-1] = Position[i];
+                   clustdetID[nclust-1] = srsChip[i];
+                   clustADCs[nclust-1] = raw_q[i][0];
+                   
+                   for (int z = 1; z < 26; z++) {
+                       clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
+                   }
+
+               }
            }
            if (myconfiguration.Verbose) cout <<	RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
            if (myconfiguration.Verbose) cout << ", apvHit["<< i << "] = " << srsChan[i];
