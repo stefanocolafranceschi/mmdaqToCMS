@@ -31,6 +31,7 @@ int ReadConf::LoadConfiguration() {
     Reco = reader.Get("General", "Reco", "All");
     AnalysisType = reader.Get("General", "AnalysisType", "Integral");
     MaxEvents = reader.GetInteger("General", "MaxEvents", 100000000);
+    OneCluster = reader.GetBoolean("General", "OneCluster", false);
     for (int i = 1; i <= 4; i++) {
         Position[i] = reader.GetInteger("Sector"+std::to_string(i), "Position", 0);
         Size[i] = reader.GetInteger("Sector"+std::to_string(i), "Size", 0);

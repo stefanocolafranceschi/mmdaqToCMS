@@ -23,7 +23,7 @@ public:
     int PedestalCut, Position[9], Size[9], Chips[9], apvIndex[25], NumberOfChips, FecID[25], adcCh[25], DetPlane[25], MaxEvents;
     std::string InputFile, ReadoutType, Reco, AnalysisType, OutputFile;
     double Pitch[9];
-    bool Flip[25], Verbose, PedestalRemoval;
+    bool Flip[25], Verbose, PedestalRemoval, OneCluster;
     int MonitorEvents;
 
 private:

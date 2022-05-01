@@ -376,7 +376,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
                // Archieve the cluster found
                clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
-               clustTimebin[nclust-1] = t_max_q[i] / clustSize[nclust-1];
+               clustTimebin[nclust-1] = (int)clustTimebin[nclust-1] / clustSize[nclust-1];
                nclust++;
 
                // Start a new cluster (position, ADC, timing)......
@@ -385,12 +385,9 @@ Bool_t apv_raw::Process(Long64_t entry) {
                clustSize[nclust-1] = 1;
                clustPlaneID[nclust-1] = Position[i];
                clustdetID[nclust-1] = srsChip[i];
-               clustADCs[nclust-1] = raw_q[i][0];
-               
-               for (int z = 1; z < 26; z++) {
-                   clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
-               }
+               clustADCs[nclust-1] = raw_q[i][t_max_q[i]-1];
            }
+
            else {
            // Contiguous hit found
                if ( abs(srsChanMapped[i]-srsChanMapped[i-1]) == 1) {
@@ -400,10 +397,8 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
                    clustPlaneID[nclust-1] = Position[i];
                    clustdetID[nclust-1] = srsChip[i];
+                   clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][t_max_q[i]-1];
 
-                   for (int z = 0; z < 26; z++) {
-                       clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
-           	       }
                    if (i==(nCh-1)) {
                        clustPos[nclust-1]=(float)clustPos[nclust-1]/clustSize[nclust-1];
                        clustTimebin[nclust-1]=(int)clustTimebin[nclust-1]/clustSize[nclust-1];                   
@@ -413,7 +408,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
                    // Archieve the cluster found
                    clustPos[nclust-1]= (float)clustPos[nclust-1]/clustSize[nclust-1];
-                   clustTimebin[nclust-1] = t_max_q[i] / clustSize[nclust-1];
+                   clustTimebin[nclust-1] = (int)clustTimebin[nclust-1] / clustSize[nclust-1];
                    nclust++;
 
                    // Start a new cluster (position, ADC, timing)......
@@ -422,11 +417,7 @@ Bool_t apv_raw::Process(Long64_t entry) {
                    clustSize[nclust-1] = 1;
                    clustPlaneID[nclust-1] = Position[i];
                    clustdetID[nclust-1] = srsChip[i];
-                   clustADCs[nclust-1] = raw_q[i][0];
-                   
-                   for (int z = 1; z < 26; z++) {
-                       clustADCs[nclust-1] = clustADCs[nclust-1] + raw_q[i][z];
-                   }
+                   clustADCs[nclust-1] = raw_q[i][t_max_q[i]-1]; 
 
                }
            }
@@ -443,11 +434,8 @@ Bool_t apv_raw::Process(Long64_t entry) {
            clustPlaneID[0] = Position[i];
            clustdetID[0] = srsChip[i];
            clustSize[0] = 1;
-           clustPos[0] = StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;;
-           clustADCs[0] = raw_q[i][0];
-           for (int z = 1; z < 26; z++) {
-               clustADCs[0] = clustADCs[0] + raw_q[i][z];
-           }
+           clustPos[0] = StripPitch[i] * srsChanMapped[i] - myconfiguration.Size[ Sector[i] ]/2;
+           clustADCs[0] = raw_q[i][t_max_q[i]-1];
            clustTimebin[0] = t_max_q[i];
 
            if (myconfiguration.Verbose) cout << RED << std::setw(3) << "srsChanMapped["<< i << "] = " << srsChanMapped[i];
@@ -459,7 +447,6 @@ Bool_t apv_raw::Process(Long64_t entry) {
 
        // Assigning ADC Branches
        strip[i] = srsChanMapped[i];           //Straight from hits: srsChanMapped[i];
-
        hitTimebin[i] = t_max_q[i];
        detID[i] = srsChip[i];
        Sector[i] = mmReadout[i]-47;
@@ -467,8 +454,18 @@ Bool_t apv_raw::Process(Long64_t entry) {
        planeID[i] = Position[i];
 
    }
+
    if (myconfiguration.Verbose) cout << std::setw(3) << "Number of Clusters = " << nclust << endl;
 
+   // Choose only one cluster per chip
+   if ( (myconfiguration.OneCluster) && (nclust > 1) ) {
+     for (int i = 0; i < nclust; i++) {
+       for (int j = 0; j < nclust; j++) {
+         if ( i == j ) continue;
+         if ( (clustdetID[i] == clustdetID[j]) && (clustADCs[i] < clustADCs[j]) ) clustADCs[i] = -999;
+       }
+     }
+    }
 
    //
    // Tree filling
